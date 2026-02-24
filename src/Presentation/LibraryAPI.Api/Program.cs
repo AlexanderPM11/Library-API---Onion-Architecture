@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using LibraryAPI.Api.Extensions;
 using LibraryAPI.Api.Middleware;
 using LibraryAPI.Infrastructure.DependencyInjection;
+using LibraryAPI.Application.DTOs;
 using LibraryAPI.Application.Interfaces;
 using LibraryAPI.Application.Mappings;
 using LibraryAPI.Application.Services;
@@ -26,6 +27,17 @@ builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// CORS Configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 // Swagger with JWT Support
 builder.Services.AddSwaggerDocumentation();
@@ -51,8 +63,13 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService>(provider =>
+    new AuthService(
+        provider.GetRequiredService<UserManager<IdentityUser>>(),
+        provider.GetRequiredService<RoleManager<IdentityRole>>(),
+        provider.GetRequiredService<IJwtTokenGenerator>()));
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 var app = builder.Build();
 
@@ -85,6 +102,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
