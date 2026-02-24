@@ -1,6 +1,7 @@
 using LibraryAPI.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -42,6 +43,35 @@ namespace LibraryAPI.Infrastructure.DependencyInjection
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse();
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+                        var result = System.Text.Json.JsonSerializer.Serialize(new
+                        {
+                            status = 401,
+                            message = "Usuario no autenticado. Por favor, inicie sesión.",
+                            error = "Unauthorized"
+                        });
+                        return context.Response.WriteAsync(result);
+                    },
+                    OnForbidden = context =>
+                    {
+                        context.Response.StatusCode = 403;
+                        context.Response.ContentType = "application/json";
+                        var result = System.Text.Json.JsonSerializer.Serialize(new
+                        {
+                            status = 403,
+                            message = "No tienes permisos para realizar esta acción.",
+                            error = "Forbidden"
+                        });
+                        return context.Response.WriteAsync(result);
+                    }
                 };
             });
 

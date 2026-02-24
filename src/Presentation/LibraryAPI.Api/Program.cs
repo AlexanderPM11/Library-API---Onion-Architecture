@@ -3,7 +3,6 @@ using FluentValidation.AspNetCore;
 using LibraryAPI.Api.Extensions;
 using LibraryAPI.Api.Middleware;
 using LibraryAPI.Infrastructure.DependencyInjection;
-using LibraryAPI.Application.DTOs;
 using LibraryAPI.Application.Interfaces;
 using LibraryAPI.Application.Mappings;
 using LibraryAPI.Application.Services;
@@ -12,13 +11,8 @@ using LibraryAPI.Domain.Interfaces;
 using LibraryAPI.Infrastructure;
 using LibraryAPI.Infrastructure.Data;
 using LibraryAPI.Infrastructure.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Serilog;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
