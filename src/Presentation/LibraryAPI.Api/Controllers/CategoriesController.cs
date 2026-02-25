@@ -35,7 +35,7 @@ namespace LibraryAPI.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin,Empleado")]
         public async Task<IActionResult> Create([FromBody] CategoryCreateDto categoryDto)
         {
             var result = await _categoryService.CreateCategoryAsync(categoryDto);
@@ -43,7 +43,7 @@ namespace LibraryAPI.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin,Empleado")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryCreateDto categoryDto)
         {
             var result = await _categoryService.UpdateCategoryAsync(id, categoryDto);

@@ -18,7 +18,7 @@ namespace LibraryAPI.Infrastructure.Security
             _configuration = configuration;
         }
 
-        public string GenerateToken(string userId, string email, IEnumerable<string> roles)
+        public string GenerateToken(string userId, string email, IEnumerable<string> roles, int? branchId)
         {
             var claims = new List<Claim>
             {
@@ -27,6 +27,11 @@ namespace LibraryAPI.Infrastructure.Security
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, userId)
             };
+
+            if (branchId.HasValue)
+            {
+                claims.Add(new Claim("BranchId", branchId.Value.ToString()));
+            }
 
             foreach (var role in roles)
             {

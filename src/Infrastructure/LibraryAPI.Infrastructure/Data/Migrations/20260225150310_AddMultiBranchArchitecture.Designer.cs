@@ -4,6 +4,7 @@ using LibraryAPI.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryAPI.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    partial class LibraryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260225150310_AddMultiBranchArchitecture")]
+    partial class AddMultiBranchArchitecture
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,10 +262,6 @@ namespace LibraryAPI.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -301,21 +300,21 @@ namespace LibraryAPI.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 2, 25, 15, 39, 36, 646, DateTimeKind.Utc).AddTicks(6502),
+                            CreatedAt = new DateTime(2026, 2, 25, 15, 3, 9, 338, DateTimeKind.Utc).AddTicks(2941),
                             Description = "Fiction books",
                             Name = "Fiction"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 2, 25, 15, 39, 36, 646, DateTimeKind.Utc).AddTicks(6505),
+                            CreatedAt = new DateTime(2026, 2, 25, 15, 3, 9, 338, DateTimeKind.Utc).AddTicks(2945),
                             Description = "Non-Fiction books",
                             Name = "Non-Fiction"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 2, 25, 15, 39, 36, 646, DateTimeKind.Utc).AddTicks(6506),
+                            CreatedAt = new DateTime(2026, 2, 25, 15, 3, 9, 338, DateTimeKind.Utc).AddTicks(2947),
                             Description = "Science books",
                             Name = "Science"
                         });

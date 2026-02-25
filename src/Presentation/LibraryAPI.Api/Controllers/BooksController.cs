@@ -45,7 +45,7 @@ namespace LibraryAPI.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin,Empleado")]
         public async Task<IActionResult> Create([FromBody] BookCreateDto bookDto)
         {
             var result = await _bookService.CreateBookAsync(bookDto);
@@ -54,7 +54,7 @@ namespace LibraryAPI.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin,Empleado")]
         public async Task<IActionResult> Update(int id, [FromBody] BookCreateDto bookDto)
         {
             var result = await _bookService.UpdateBookAsync(id, bookDto);

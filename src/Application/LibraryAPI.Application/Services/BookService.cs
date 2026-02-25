@@ -14,11 +14,13 @@ namespace LibraryAPI.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public BookService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BookService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ApiResponse<IEnumerable<BookDto>>> GetAllBooksAsync(int page, int pageSize)
@@ -49,6 +51,14 @@ namespace LibraryAPI.Application.Services
             try
             {
                 var book = _mapper.Map<Book>(bookDto);
+
+                // Force BranchId based on user context if not SuperAdmin
+                book.BranchId = _currentUserService.IsSuperAdmin ? bookDto.BranchId : _currentUserService.BranchId;
+
+                if (book.BranchId == null)
+                {
+                    return ApiResponse<BookDto>.FailureResponse("BranchId is required for this action.");
+                }
 
                 // Add Authors
                 foreach (var authorId in bookDto.AuthorIds)

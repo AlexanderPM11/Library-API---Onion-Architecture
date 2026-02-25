@@ -19,6 +19,7 @@ namespace LibraryAPI.Infrastructure.DependencyInjection
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequiredLength = 6;
+                options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<LibraryDbContext>()
             .AddDefaultTokenProviders();

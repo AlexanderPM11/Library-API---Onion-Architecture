@@ -11,6 +11,9 @@ namespace LibraryAPI.Domain.Entities
         public int PublicationYear { get; set; }
         public int Stock { get; set; }
 
+        public int? BranchId { get; set; }
+        public virtual Branch? Branch { get; set; }
+
         public int CategoryId { get; set; }
         public virtual Category Category { get; set; } = null!;
 

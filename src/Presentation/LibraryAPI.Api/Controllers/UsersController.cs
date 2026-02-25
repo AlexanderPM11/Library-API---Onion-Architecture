@@ -9,7 +9,7 @@ namespace LibraryAPI.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;

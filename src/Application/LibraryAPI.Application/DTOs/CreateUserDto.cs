@@ -18,9 +18,11 @@ namespace LibraryAPI.Application.DTOs
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters long")]
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Role is required (Admin or User)")]
-        public string Role { get; set; } = "User";
+        [Required(ErrorMessage = "Role is required (Admin or Empleado)")]
+        public string Role { get; set; } = "Empleado";
 
         public bool IsActive { get; set; } = true;
+
+        public int? BranchId { get; set; }
     }
 }

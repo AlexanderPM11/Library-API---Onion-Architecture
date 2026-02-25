@@ -8,6 +8,10 @@ namespace LibraryAPI.Domain.Entities
         public string LastName { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
 
+        // Relación con Sucursal (Nulo para SuperAdmin que es acceso global)
+        public int? BranchId { get; set; }
+        public virtual Branch? Branch { get; set; }
+
         public string FullName
         {
             get

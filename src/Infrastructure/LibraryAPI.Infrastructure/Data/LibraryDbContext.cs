@@ -11,26 +11,31 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using LibraryAPI.Application.Interfaces;
 
 namespace LibraryAPI.Infrastructure.Data
 {
     public class LibraryDbContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICurrentUserService _currentUserService;
 
         public LibraryDbContext(
             DbContextOptions<LibraryDbContext> options,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ICurrentUserService currentUserService)
             : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
+            _currentUserService = currentUserService;
         }
 
-        public DbSet<Book> Books { get; set; }
-        public DbSet<Author> Authors { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<BookAuthor> BookAuthors { get; set; }
-        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Book> Books { get; set; } = null!;
+        public DbSet<Author> Authors { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<BookAuthor> BookAuthors { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+        public DbSet<Branch> Branches { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +61,29 @@ namespace LibraryAPI.Infrastructure.Data
                 new Category { Id = 2, Name = "Non-Fiction", Description = "Non-Fiction books" },
                 new Category { Id = 3, Name = "Science", Description = "Science books" }
             );
+
+            // Configure Branch relationships
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Branch)
+                .WithMany(b => b.Users)
+                .HasForeignKey(u => u.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Book>()
+                .HasOne(b => b.Branch)
+                .WithMany()
+                .HasForeignKey(b => b.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Global Query Filters
+            modelBuilder.Entity<ApplicationUser>().HasQueryFilter(u =>
+                _currentUserService.IsSuperAdmin || u.BranchId == _currentUserService.BranchId);
+
+            modelBuilder.Entity<Book>().HasQueryFilter(b =>
+                _currentUserService.IsSuperAdmin || b.BranchId == _currentUserService.BranchId);
+
+            modelBuilder.Entity<AuditLog>().HasQueryFilter(a =>
+                _currentUserService.IsSuperAdmin || a.BranchId == _currentUserService.BranchId);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
@@ -70,7 +98,8 @@ namespace LibraryAPI.Infrastructure.Data
         {
             ChangeTracker.DetectChanges();
             var auditEntries = new List<AuditEntry>();
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = _currentUserService.UserId;
+            var branchId = _currentUserService.BranchId;
 
             foreach (var entry in ChangeTracker.Entries())
             {
@@ -81,7 +110,8 @@ namespace LibraryAPI.Infrastructure.Data
                 var auditEntry = new AuditEntry(entry)
                 {
                     TableName = entry.Metadata.GetTableName() ?? entry.Entity.GetType().Name,
-                    UserId = userId
+                    UserId = userId,
+                    BranchId = branchId
                 };
                 auditEntries.Add(auditEntry);
 
@@ -176,6 +206,7 @@ namespace LibraryAPI.Infrastructure.Data
 
         public EntityEntry Entry { get; }
         public string? UserId { get; set; }
+        public int? BranchId { get; set; }
         public string TableName { get; set; } = string.Empty;
         public Dictionary<string, object?> KeyValues { get; } = new();
         public Dictionary<string, object?> OldValues { get; } = new();
@@ -191,6 +222,7 @@ namespace LibraryAPI.Infrastructure.Data
             var audit = new AuditLog
             {
                 UserId = UserId,
+                BranchId = BranchId,
                 Type = AuditType,
                 TableName = TableName,
                 DateTime = DateTime.UtcNow,

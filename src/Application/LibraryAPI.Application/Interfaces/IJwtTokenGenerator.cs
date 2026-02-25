@@ -5,6 +5,6 @@ namespace LibraryAPI.Application.Interfaces
 {
     public interface IJwtTokenGenerator
     {
-        string GenerateToken(string userId, string email, IEnumerable<string> roles);
+        string GenerateToken(string userId, string email, IEnumerable<string> roles, int? branchId);
     }
 }

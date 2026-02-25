@@ -67,6 +67,14 @@ builder.Services.AddIdentityConfiguration();
 // JWT Authentication configuration
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+// Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("SuperAdmin"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("SuperAdmin", "Admin"));
+    options.AddPolicy("EmpleadoOnly", policy => policy.RequireRole("SuperAdmin", "Admin", "Empleado"));
+});
+
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -79,6 +87,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IAuthService>(provider =>
     new AuthService(
         provider.GetRequiredService<UserManager<ApplicationUser>>(),
@@ -88,6 +97,7 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 

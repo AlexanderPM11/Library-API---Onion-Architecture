@@ -7,6 +7,7 @@ namespace LibraryAPI.Domain.Entities
     {
         public int Id { get; set; }
         public string? UserId { get; set; }
+        public int? BranchId { get; set; }
         public AuditType Type { get; set; }
         public string TableName { get; set; } = string.Empty;
         public DateTime DateTime { get; set; } = DateTime.UtcNow;

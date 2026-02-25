@@ -11,5 +11,6 @@ namespace LibraryAPI.Application.DTOs
         public string FullName { get; set; } = string.Empty;
         public IList<string> Roles { get; set; } = new List<string>();
         public bool IsActive { get; set; }
+        public int? BranchId { get; set; }
     }
 }

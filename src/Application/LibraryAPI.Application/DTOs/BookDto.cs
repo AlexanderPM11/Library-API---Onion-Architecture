@@ -13,6 +13,7 @@ namespace LibraryAPI.Application.DTOs
 
         public CategoryDto Category { get; set; } = null!;
         public List<AuthorDto> Authors { get; set; } = new List<AuthorDto>();
+        public int? BranchId { get; set; }
     }
 
     public class BookCreateDto
@@ -24,5 +25,6 @@ namespace LibraryAPI.Application.DTOs
         public int Stock { get; set; }
         public int CategoryId { get; set; }
         public List<int> AuthorIds { get; set; } = new List<int>();
+        public int? BranchId { get; set; }
     }
 }

@@ -26,6 +26,28 @@ namespace LibraryAPI.Application.Services
 
         public async Task<AuthResponseDto> RegisterAsync(UserRegisterDto registerDto)
         {
+            // Check email
+            var existingByEmail = await _userManager.FindByEmailAsync(registerDto.Email);
+            if (existingByEmail != null)
+            {
+                return new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "El correo electrónico ya está en uso."
+                };
+            }
+
+            // Check username
+            var existingByName = await _userManager.FindByNameAsync(registerDto.Email);
+            if (existingByName != null)
+            {
+                return new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "El nombre de usuario ya está en uso."
+                };
+            }
+
             var user = new ApplicationUser
             {
                 Email = registerDto.Email,
@@ -41,13 +63,13 @@ namespace LibraryAPI.Application.Services
                 return new AuthResponseDto
                 {
                     IsSuccess = false,
-                    Message = "User registration failed",
+                    Message = "Error al completar el registro.",
                     Errors = result.Errors.Select(e => e.Description).ToList()
                 };
             }
 
             // Assign default role
-            await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, "Empleado");
 
             return new AuthResponseDto
             {
@@ -80,7 +102,7 @@ namespace LibraryAPI.Application.Services
 
             // Get roles
             var roles = await _userManager.GetRolesAsync(user);
-            var token = _jwtTokenGenerator.GenerateToken(user.Id, user.Email!, roles);
+            var token = _jwtTokenGenerator.GenerateToken(user.Id, user.Email!, roles, user.BranchId);
 
             return new AuthResponseDto
             {

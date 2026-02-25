@@ -9,7 +9,7 @@ namespace LibraryAPI.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")] // Solo administradores pueden ver auditoría
+    [Authorize(Roles = "SuperAdmin,Admin")] // Solo administradores pueden ver auditoría
     public class AuditLogsController : ControllerBase
     {
         private readonly IAuditLogService _auditLogService;

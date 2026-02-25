@@ -13,11 +13,16 @@ namespace LibraryAPI.Application.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ICurrentUserService _currentUserService;
 
-        public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserService(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            ICurrentUserService currentUserService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _currentUserService = currentUserService;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
@@ -36,7 +41,8 @@ namespace LibraryAPI.Application.Services
                     LastName = user.LastName,
                     FullName = user.FullName,
                     Roles = roles.ToList(),
-                    IsActive = user.IsActive
+                    IsActive = user.IsActive,
+                    BranchId = user.BranchId
                 });
             }
 
@@ -58,49 +64,87 @@ namespace LibraryAPI.Application.Services
                 LastName = user.LastName,
                 FullName = user.FullName,
                 Roles = roles.ToList(),
-                IsActive = user.IsActive
+                IsActive = user.IsActive,
+                BranchId = user.BranchId
             };
         }
 
         public async Task<AuthResponseDto> CreateUserAsync(CreateUserDto createDto)
-        {
-            var user = new ApplicationUser
-            {
-                Email = createDto.Email,
-                UserName = createDto.Email,
-                FirstName = createDto.FirstName,
-                LastName = createDto.LastName,
-                IsActive = createDto.IsActive
-            };
+        { 
+            try 
+	        {
+                var emailNormalized = createDto.Email.Trim().ToUpper();
 
-            var result = await _userManager.CreateAsync(user, createDto.Password);
+                // Check if email or username already exists using a direct query for maximum reliability
+                var emailExists = await _userManager.Users
+                    .AnyAsync(u => u.NormalizedEmail == emailNormalized || u.NormalizedUserName == emailNormalized);
 
-            if (!result.Succeeded)
+                if (emailExists)
+                {
+                    return new AuthResponseDto
+                    {
+                        IsSuccess = false,
+                        Message = "El correo electrónico o nombre de usuario ya está en uso."
+                    };
+                }
+
+                var user = new ApplicationUser
+                {
+                    Email = createDto.Email.Trim(),
+                    UserName = createDto.Email.Trim(),
+                    FirstName = createDto.FirstName.Trim(),
+                    LastName = createDto.LastName.Trim(),
+                    IsActive = createDto.IsActive,
+                    BranchId = _currentUserService.IsSuperAdmin ? createDto.BranchId : _currentUserService.BranchId
+                };
+
+                var result = await _userManager.CreateAsync(user, createDto.Password);
+
+                if (!result.Succeeded)
+                {
+                    return new AuthResponseDto
+                    {
+                        IsSuccess = false,
+                        Message = "Error de validación al crear el usuario.",
+                        Errors = result.Errors.Select(e => e.Description).ToList()
+                    };
+                }
+
+                // Assign role. Check if role exists.
+                var roleExists = await _roleManager.RoleExistsAsync(createDto.Role);
+                if (roleExists)
+                {
+                    await _userManager.AddToRoleAsync(user, createDto.Role);
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(user, "Empleado"); // Fallback
+                }
+
+                return new AuthResponseDto
+                {
+                    IsSuccess = true,
+                    Message = "Usuario creado exitosamente."
+                };
+
+            }
+            catch (DbUpdateException)
             {
                 return new AuthResponseDto
                 {
                     IsSuccess = false,
-                    Message = "Failed to create user",
-                    Errors = result.Errors.Select(e => e.Description).ToList()
+                    Message = "No se pudo guardar el usuario. El correo o nombre de usuario ya existe en el sistema."
                 };
             }
-
-            // Assign role. Check if role exists.
-            var roleExists = await _roleManager.RoleExistsAsync(createDto.Role);
-            if (roleExists)
-            {
-                await _userManager.AddToRoleAsync(user, createDto.Role);
+	        catch (Exception ex)
+	        {
+                return new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Ocurrió un error inesperado al procesar la solicitud.",
+                    Errors = new List<string> { ex.Message }
+                };
             }
-            else
-            {
-                await _userManager.AddToRoleAsync(user, "User"); // Fallback
-            }
-
-            return new AuthResponseDto
-            {
-                IsSuccess = true,
-                Message = "User created successfully"
-            };
         }
 
         public async Task<AuthResponseDto> UpdateUserAsync(string id, UpdateUserDto updateDto)
@@ -118,8 +162,23 @@ namespace LibraryAPI.Application.Services
                 user.IsActive = updateDto.IsActive.Value;
             }
 
+            if (_currentUserService.IsSuperAdmin && updateDto.BranchId.HasValue)
+            {
+                user.BranchId = updateDto.BranchId.Value;
+            }
+            else if (!_currentUserService.IsSuperAdmin && updateDto.BranchId.HasValue && updateDto.BranchId != user.BranchId)
+            {
+                return new AuthResponseDto { IsSuccess = false, Message = "No tiene permisos para cambiar la sucursal de este usuario." };
+            }
+
             if (!string.IsNullOrEmpty(updateDto.Email) && updateDto.Email != user.Email)
             {
+                var existingUser = await _userManager.FindByEmailAsync(updateDto.Email);
+                if (existingUser != null && existingUser.Id != id)
+                {
+                    return new AuthResponseDto { IsSuccess = false, Message = "Email already in use" };
+                }
+
                 user.Email = updateDto.Email;
                 user.UserName = updateDto.Email;
             }
