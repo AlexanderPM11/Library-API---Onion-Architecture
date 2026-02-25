@@ -36,6 +36,7 @@ namespace LibraryAPI.Infrastructure.Data
         public DbSet<BookAuthor> BookAuthors { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
         public DbSet<Branch> Branches { get; set; } = null!;
+        public DbSet<EmailTemplate> EmailTemplates { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -84,6 +85,16 @@ namespace LibraryAPI.Infrastructure.Data
 
             modelBuilder.Entity<AuditLog>().HasQueryFilter(a =>
                 _currentUserService.IsSuperAdmin || a.BranchId == _currentUserService.BranchId);
+
+            modelBuilder.Entity<EmailTemplate>()
+                .HasOne(e => e.Branch)
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Only SuperAdmins can see all templates. BranchAdmins/Employees see their branch's templates PLUS the global templates (BranchId == null).
+            modelBuilder.Entity<EmailTemplate>().HasQueryFilter(e =>
+                _currentUserService.IsSuperAdmin || e.BranchId == null || e.BranchId == _currentUserService.BranchId);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

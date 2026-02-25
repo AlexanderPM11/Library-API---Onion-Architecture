@@ -61,6 +61,9 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
+// Infrastructure Services (Email, etc.)
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
 // Identity configuration
 builder.Services.AddIdentityConfiguration();
 
@@ -88,16 +91,13 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
-builder.Services.AddScoped<IAuthService>(provider =>
-    new AuthService(
-        provider.GetRequiredService<UserManager<ApplicationUser>>(),
-        provider.GetRequiredService<RoleManager<IdentityRole>>(),
-        provider.GetRequiredService<IJwtTokenGenerator>()));
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<ITemplateEngineService, TemplateEngineService>();
 
 var app = builder.Build();
 

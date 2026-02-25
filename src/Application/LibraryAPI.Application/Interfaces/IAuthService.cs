@@ -9,5 +9,8 @@ namespace LibraryAPI.Application.Interfaces
         Task<AuthResponseDto> LoginAsync(UserLoginDto loginDto);
         Task<UserProfileDto?> GetProfileAsync(string userId);
         Task<AuthResponseDto> UpdateProfileAsync(string userId, UpdateProfileDto updateDto);
+        Task<AuthResponseDto> ConfirmEmailAsync(ConfirmEmailDto confirmDto);
+        Task<AuthResponseDto> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
+        Task<AuthResponseDto> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
     }
 }

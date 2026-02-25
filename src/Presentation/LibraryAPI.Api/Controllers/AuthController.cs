@@ -63,5 +63,38 @@ namespace LibraryAPI.Api.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto confirmDto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await _authService.ConfirmEmailAsync(confirmDto);
+            if (!result.IsSuccess) return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await _authService.ForgotPasswordAsync(forgotPasswordDto);
+            // Siempre retornamos Ok por seguridad, incluso si el correo no existe, 
+            // aunque el servicio ya maneja este mensaje unificado.
+            return Ok(result);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await _authService.ResetPasswordAsync(resetPasswordDto);
+            if (!result.IsSuccess) return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }
