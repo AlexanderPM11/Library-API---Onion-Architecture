@@ -69,6 +69,15 @@ namespace LibraryAPI.Application.Services
                 };
             }
 
+            if (!user.IsActive)
+            {
+                return new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Su cuenta está inactiva. Por favor contacte al administrador."
+                };
+            }
+
             // Get roles
             var roles = await _userManager.GetRolesAsync(user);
             var token = _jwtTokenGenerator.GenerateToken(user.Id, user.Email!, roles);

@@ -87,6 +87,7 @@ builder.Services.AddScoped<IAuthService>(provider =>
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
