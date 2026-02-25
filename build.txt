@@ -1,0 +1,12 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  LibraryAPI.Domain -> C:\Projects\Personal\LibraryApp\Backend\LibraryAPI\src\Domain\LibraryAPI.Domain\bin\Debug\net8.0\LibraryAPI.Domain.dll
+  LibraryAPI.Application -> C:\Projects\Personal\LibraryApp\Backend\LibraryAPI\src\Application\LibraryAPI.Application\bin\Debug\net8.0\LibraryAPI.Application.dll
+  LibraryAPI.Infrastructure -> C:\Projects\Personal\LibraryApp\Backend\LibraryAPI\src\Infrastructure\LibraryAPI.Infrastructure\bin\Debug\net8.0\LibraryAPI.Infrastructure.dll
+  LibraryAPI.Api -> C:\Projects\Personal\LibraryApp\Backend\LibraryAPI\src\Presentation\LibraryAPI.Api\bin\Debug\net8.0\LibraryAPI.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.32

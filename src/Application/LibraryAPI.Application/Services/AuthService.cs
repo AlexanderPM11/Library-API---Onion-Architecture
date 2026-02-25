@@ -4,16 +4,18 @@ using LibraryAPI.Application.DTOs;
 using LibraryAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
+using LibraryAPI.Domain.Entities;
+
 namespace LibraryAPI.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
         public AuthService(
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IJwtTokenGenerator jwtTokenGenerator)
         {
@@ -24,10 +26,12 @@ namespace LibraryAPI.Application.Services
 
         public async Task<AuthResponseDto> RegisterAsync(UserRegisterDto registerDto)
         {
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 Email = registerDto.Email,
                 UserName = registerDto.Email,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -75,6 +79,62 @@ namespace LibraryAPI.Application.Services
                 Message = "Login successful",
                 Token = token
             };
+        }
+        public async Task<UserProfileDto?> GetProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new UserProfileDto
+            {
+                Id = user.Id,
+                Email = user.Email ?? string.Empty,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                FullName = user.FullName,
+                Roles = roles.ToList()
+            };
+        }
+
+        public async Task<AuthResponseDto> UpdateProfileAsync(string userId, UpdateProfileDto updateDto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return new AuthResponseDto { IsSuccess = false, Message = "User not found" };
+            }
+
+            user.FirstName = updateDto.FirstName;
+            user.LastName = updateDto.LastName;
+            var updateResult = await _userManager.UpdateAsync(user);
+
+            if (!updateResult.Succeeded)
+            {
+                return new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Failed to update profile details",
+                    Errors = updateResult.Errors.Select(e => e.Description).ToList()
+                };
+            }
+
+            if (!string.IsNullOrEmpty(updateDto.CurrentPassword) && !string.IsNullOrEmpty(updateDto.NewPassword))
+            {
+                var pwdResult = await _userManager.ChangePasswordAsync(user, updateDto.CurrentPassword, updateDto.NewPassword);
+                if (!pwdResult.Succeeded)
+                {
+                    return new AuthResponseDto
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to update password",
+                        Errors = pwdResult.Errors.Select(e => e.Description).ToList()
+                    };
+                }
+            }
+
+            return new AuthResponseDto { IsSuccess = true, Message = "Profile updated successfully" };
         }
     }
 }

@@ -7,5 +7,7 @@ namespace LibraryAPI.Application.Interfaces
     {
         Task<AuthResponseDto> RegisterAsync(UserRegisterDto registerDto);
         Task<AuthResponseDto> LoginAsync(UserLoginDto loginDto);
+        Task<UserProfileDto?> GetProfileAsync(string userId);
+        Task<AuthResponseDto> UpdateProfileAsync(string userId, UpdateProfileDto updateDto);
     }
 }

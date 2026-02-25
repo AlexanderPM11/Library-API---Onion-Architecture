@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using LibraryAPI.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -13,7 +14,7 @@ namespace LibraryAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
         {
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;

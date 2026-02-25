@@ -6,7 +6,7 @@ namespace LibraryAPI.Infrastructure.Data
 {
     public static class DbInitializer
     {
-        public static async Task InitializeAsync(LibraryDbContext context, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+        public static async Task InitializeAsync(LibraryDbContext context, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             // Apply migrations and create database if it doesn't exist
             await context.Database.MigrateAsync();
@@ -15,7 +15,7 @@ namespace LibraryAPI.Infrastructure.Data
             await SeedLibraryDataAsync(context);
         }
 
-        private static async Task SeedRolesAndUsersAsync(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+        private static async Task SeedRolesAndUsersAsync(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             // Seed Roles
             string[] roles = { "Admin", "User" };
@@ -31,11 +31,13 @@ namespace LibraryAPI.Infrastructure.Data
             var adminEmail = "admin@library.com";
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
-                var adminUser = new IdentityUser
+                var adminUser = new ApplicationUser
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    FirstName = "System",
+                    LastName = "Admin"
                 };
 
                 var result = await userManager.CreateAsync(adminUser, "Admin123!");
@@ -49,11 +51,13 @@ namespace LibraryAPI.Infrastructure.Data
             var userEmail = "user@library.com";
             if (await userManager.FindByEmailAsync(userEmail) == null)
             {
-                var regularUser = new IdentityUser
+                var regularUser = new ApplicationUser
                 {
                     UserName = userEmail,
                     Email = userEmail,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    FirstName = "Library",
+                    LastName = "User"
                 };
 
                 var result = await userManager.CreateAsync(regularUser, "User123!");
@@ -87,23 +91,23 @@ namespace LibraryAPI.Infrastructure.Data
                 {
                     var books = new List<Book>
                     {
-                        new Book 
-                        { 
-                            Title = "1984", 
-                            Isbn = "9780451524935", 
-                            Description = "Dystopian social science fiction novel.", 
-                            PublicationYear = 1949, 
-                            Stock = 10, 
-                            CategoryId = fictionCategory.Id 
+                        new Book
+                        {
+                            Title = "1984",
+                            Isbn = "9780451524935",
+                            Description = "Dystopian social science fiction novel.",
+                            PublicationYear = 1949,
+                            Stock = 10,
+                            CategoryId = fictionCategory.Id
                         },
-                        new Book 
-                        { 
-                            Title = "Foundation", 
-                            Isbn = "9780553293357", 
-                            Description = "Science fiction novel by Isaac Asimov.", 
-                            PublicationYear = 1951, 
-                            Stock = 5, 
-                            CategoryId = scienceCategory.Id 
+                        new Book
+                        {
+                            Title = "Foundation",
+                            Isbn = "9780553293357",
+                            Description = "Science fiction novel by Isaac Asimov.",
+                            PublicationYear = 1951,
+                            Stock = 5,
+                            CategoryId = scienceCategory.Id
                         }
                     };
 

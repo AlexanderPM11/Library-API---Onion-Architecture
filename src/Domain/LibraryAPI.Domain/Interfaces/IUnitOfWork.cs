@@ -8,6 +8,7 @@ namespace LibraryAPI.Domain.Interfaces
         IBookRepository Books { get; }
         IAuthorRepository Authors { get; }
         ICategoryRepository Categories { get; }
+        IAuditLogRepository AuditLogs { get; }
         Task<int> CompleteAsync();
     }
 }

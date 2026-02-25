@@ -14,6 +14,7 @@ using LibraryAPI.Infrastructure;
 using LibraryAPI.Infrastructure.Data;
 using LibraryAPI.Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
+using LibraryAPI.Domain.Entities;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +59,7 @@ builder.Services.AddSwaggerDocumentation();
 
 // DbContext configuration (MySQL)
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
 
 // Identity configuration
 builder.Services.AddIdentityConfiguration();
@@ -79,11 +81,12 @@ builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService>(provider =>
     new AuthService(
-        provider.GetRequiredService<UserManager<IdentityUser>>(),
+        provider.GetRequiredService<UserManager<ApplicationUser>>(),
         provider.GetRequiredService<RoleManager<IdentityRole>>(),
         provider.GetRequiredService<IJwtTokenGenerator>()));
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
 var app = builder.Build();
 
@@ -94,7 +97,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<LibraryDbContext>();
-        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
         await DbInitializer.InitializeAsync(context, roleManager, userManager);

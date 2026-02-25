@@ -1,6 +1,8 @@
 using LibraryAPI.Application.DTOs;
 using LibraryAPI.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace LibraryAPI.Api.Controllers
@@ -32,6 +34,32 @@ namespace LibraryAPI.Api.Controllers
             var result = await _authService.LoginAsync(loginDto);
             if (!result.IsSuccess)
                 return Unauthorized(result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var profile = await _authService.GetProfileAsync(userId);
+            if (profile == null) return NotFound(ApiResponse<UserProfileDto>.FailureResponse("User not found"));
+
+            return Ok(ApiResponse<UserProfileDto>.SuccessResponse(profile));
+        }
+
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto updateDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var result = await _authService.UpdateProfileAsync(userId, updateDto);
+            if (!result.IsSuccess) return BadRequest(result);
 
             return Ok(result);
         }

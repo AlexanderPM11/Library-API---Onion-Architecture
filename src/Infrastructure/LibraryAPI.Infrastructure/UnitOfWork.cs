@@ -12,6 +12,7 @@ namespace LibraryAPI.Infrastructure
         public IBookRepository Books { get; private set; }
         public IAuthorRepository Authors { get; private set; }
         public ICategoryRepository Categories { get; private set; }
+        public IAuditLogRepository AuditLogs { get; private set; }
 
         public UnitOfWork(LibraryDbContext context)
         {
@@ -19,6 +20,7 @@ namespace LibraryAPI.Infrastructure
             Books = new BookRepository(_context);
             Authors = new AuthorRepository(_context);
             Categories = new CategoryRepository(_context);
+            AuditLogs = new AuditLogRepository(_context);
         }
 
         public async Task<int> CompleteAsync()

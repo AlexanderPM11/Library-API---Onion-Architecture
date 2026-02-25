@@ -23,6 +23,8 @@ namespace LibraryAPI.Application.Mappings
 
             CreateMap<BookCreateDto, Book>()
                 .ForMember(dest => dest.BookAuthors, opt => opt.Ignore()); // Will be handled manually in the service
+
+            CreateMap<AuditLog, AuditLogDto>();
         }
     }
 }
