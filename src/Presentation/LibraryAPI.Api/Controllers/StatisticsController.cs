@@ -24,5 +24,13 @@ namespace LibraryAPI.Api.Controllers
             var stats = await _statisticsService.GetDashboardStatsAsync();
             return Ok(ApiResponse<DashboardStatsDto>.SuccessResponse(stats));
         }
+
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpGet("super-admin")]
+        public async Task<IActionResult> GetSuperAdminStats()
+        {
+            var stats = await _statisticsService.GetSuperAdminStatsAsync();
+            return Ok(ApiResponse<SuperAdminStatsDto>.SuccessResponse(stats));
+        }
     }
 }

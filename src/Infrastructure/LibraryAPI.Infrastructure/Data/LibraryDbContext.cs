@@ -78,13 +78,13 @@ namespace LibraryAPI.Infrastructure.Data
 
             // Global Query Filters
             modelBuilder.Entity<ApplicationUser>().HasQueryFilter(u =>
-                _currentUserService.IsSuperAdmin || u.BranchId == _currentUserService.BranchId);
+                _currentUserService.UserId == null || _currentUserService.IsSuperAdmin || u.BranchId == _currentUserService.BranchId);
 
             modelBuilder.Entity<Book>().HasQueryFilter(b =>
-                _currentUserService.IsSuperAdmin || b.BranchId == _currentUserService.BranchId);
+                _currentUserService.UserId == null || _currentUserService.IsSuperAdmin || b.BranchId == _currentUserService.BranchId);
 
             modelBuilder.Entity<AuditLog>().HasQueryFilter(a =>
-                _currentUserService.IsSuperAdmin || a.BranchId == _currentUserService.BranchId);
+                _currentUserService.UserId == null || _currentUserService.IsSuperAdmin || a.BranchId == _currentUserService.BranchId);
 
             modelBuilder.Entity<EmailTemplate>()
                 .HasOne(e => e.Branch)
@@ -94,7 +94,7 @@ namespace LibraryAPI.Infrastructure.Data
 
             // Only SuperAdmins can see all templates. BranchAdmins/Employees see their branch's templates PLUS the global templates (BranchId == null).
             modelBuilder.Entity<EmailTemplate>().HasQueryFilter(e =>
-                _currentUserService.IsSuperAdmin || e.BranchId == null || e.BranchId == _currentUserService.BranchId);
+                _currentUserService.UserId == null || _currentUserService.IsSuperAdmin || e.BranchId == null || e.BranchId == _currentUserService.BranchId);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

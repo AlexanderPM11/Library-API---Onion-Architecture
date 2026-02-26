@@ -28,6 +28,11 @@ namespace LibraryAPI.Infrastructure.Repositories
             return await _context.Set<T>().ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> GetAllIgnoreFiltersAsync()
+        {
+            return await _context.Set<T>().IgnoreQueryFilters().ToListAsync();
+        }
+
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression)
         {
             return await _context.Set<T>().Where(expression).ToListAsync();

@@ -6,5 +6,6 @@ namespace LibraryAPI.Application.Interfaces
     public interface IStatisticsService
     {
         Task<DashboardStatsDto> GetDashboardStatsAsync();
+        Task<SuperAdminStatsDto> GetSuperAdminStatsAsync();
     }
 }
